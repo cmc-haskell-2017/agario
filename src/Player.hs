@@ -50,8 +50,10 @@ movePlayer m p = p
 
 -- | Разделение частей молекулы
 splitPlayerPart :: PlayerPart -> [PlayerPart]
-splitPlayerPart p = [ p{ partNum = newPartNum, playerMass = newMass, playerRadius = newRadius, playerSpeed = newSpeed}
-                    , p{ partNum = newPartNum + 1, playerMass = newMass, playerRadius = newRadius, timeForSpeed = 1, playerSpeed = newSpeed}]
+splitPlayerPart p
+    | ((playerMass p) > 2*startEatMass) = [ p{ partNum = newPartNum, playerMass = newMass, playerRadius = newRadius, playerSpeed = newSpeed}
+                                          , p{ partNum = newPartNum + 1, playerMass = newMass, playerRadius = newRadius, timeForSpeed = 1, playerSpeed = newSpeed}]
+    | otherwise = [p]
     where
       newMass = (playerMass p) / 2
       newRadius = radiusfromMass newMass
@@ -60,10 +62,14 @@ splitPlayerPart p = [ p{ partNum = newPartNum, playerMass = newMass, playerRadiu
 
 -- | Разделение молекулы
 splitPlayer :: Player -> Player
-splitPlayer p = p 
-  { playerParts = foldl (\x y -> (x ++ splitPlayerPart y)) [] (playerParts p)
-  , timeFromSplit = 10
-  } 
+splitPlayer p 
+  | ((length (playerParts p) < 20) && (any greater (playerParts p))) = p
+      { playerParts = foldl (\x y -> (x ++ splitPlayerPart y)) [] (playerParts p)
+      , timeFromSplit = 10
+      } 
+  | otherwise = p
+    where
+      greater x = 2*startEatMass < (playerMass x)
 
 -- | Обновление частей молекулы
 updatePlayerParts :: Float -> Point -> PlayerPart -> PlayerPart

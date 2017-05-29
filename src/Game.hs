@@ -47,8 +47,8 @@ initOneEat :: Point -> Eat
 initOneEat p = Eat
   { eatPos = p
   , eatColor = red
-  , eatMass = 75.0 
-  , eatRadius = radiusfromMass 75.0
+  , eatMass = startEatMass
+  , eatRadius = radiusfromMass startEatMass
   } 
 
 -- | Инициализация еды
@@ -57,12 +57,14 @@ initEat g = map initOneEat (randomPoints g)
 
 -- | Инициализация мира
 initWorld :: StdGen -> World
-initWorld g = (emptyWorld g)
+initWorld g = w
   { playID = 1
-  , players = initPlayer 1 Handle g1 : initPlayer 2 (Bot Easy) g2 : []
+  , players = initPlayer 1 Handle g1 : initPlayer 2 (Bot Easy) g4 : initPlayer 3 (Bot Easy) g3 : initPlayer 2 (Bot Dummy) g2 : []
   }
   where
+    w = (emptyWorld g)
     (g1, g2) = split g
+    (g3, g4) = split g2
 
 -- | Отрисовка еды
 drawEat :: Eat -> Picture

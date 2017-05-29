@@ -4,6 +4,9 @@ module Config where
 startMass :: Float
 startMass = 300
 
+startEatMass :: Float
+startEatMass = 75
+
 -- | Стартовая скорость
 startSpeed :: Float
 startSpeed = 5
