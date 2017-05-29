@@ -1,25 +1,30 @@
 module Config where
 
+-- | Стартовая масса игроков
 startMass :: Float
 startMass = 300
 
+-- | Стартовая скорость
 startSpeed :: Float
 startSpeed = 5
 
+-- | Ширина экрана
 screenWidth :: Int
 screenWidth = 1366
 
+-- | Высота экрана
 screenHeight :: Int
 screenHeight = 768
 
--- | 
-eatRangeX :: (Float, Float)
-eatRangeX = (-w, w)
+-- | Интервал генерации объектов по X
+rangeX :: (Float, Float)
+rangeX = (-w, w)
   where
     w = fromIntegral screenWidth / 2
 
-eatRangeY :: (Float, Float)
-eatRangeY = (-h, h)
+-- | Интервал генерации объектов по Y
+rangeY :: (Float, Float)
+rangeY = (-h, h)
   where
     h = fromIntegral screenHeight / 2
 
@@ -39,5 +44,6 @@ screenRight = fromIntegral screenWidth / 2
 screenLeft :: Float
 screenLeft = - fromIntegral screenWidth / 2
 
+-- | Количество еды
 eatCount :: Int
 eatCount = 40

@@ -1,77 +1,71 @@
 module Player where
 
+import System.Random
 import Model
 import Physics
 import Config
 import Graphics.Gloss.Interface.IO.Game
 import Graphics.Gloss.Data.Vector
 
-initPlayerParts :: [PlayerPart]
-initPlayerParts = [PlayerPart { playerMass = startMass
+-- |Заглушка
+initPlayerParts :: Point -> [PlayerPart]
+initPlayerParts p = [PlayerPart { partNum = 1
+                              , playerMass = startMass
                               , playerRadius = radiusfromMass startMass
                               , playerSpeed = startSpeed
-                              , playerPos = (0, 0)
+                              , playerPos = p
                               , playerDirection = 0.0
                               , timeForSpeed = 0.0 }]
 
-initPlayerParts1 :: [PlayerPart]
-initPlayerParts1 = [PlayerPart { playerMass = startMass
-                              , playerRadius = radiusfromMass startMass
-                              , playerSpeed = startSpeed
-                              , playerPos = (100, 100)
-                              , playerDirection = 0.0
-                              , timeForSpeed = 0.0 }]
-
-initPlayer :: Player
-initPlayer = Player 
-  { playerID = 1
-  , playerColor = green
-  , playerType = Handle
-  , playerTarget = (0, 0)
-  , playerCenterMass = (0, 0)
-  , playerParts = initPlayerParts
+initPlayer :: Int -> PlayerType -> StdGen -> Player
+initPlayer i pt g = Player 
+  { playerID = i
+  , playerColor = if pt == Handle then green else yellow
+  , playerType = pt
+  , playerTarget = newPoint
+  , playerCenterMass = newPoint
+  , playerParts = initPlayerParts newPoint
   , timeFromSplit = 0.0
   }
+  where
+    (g1, g2) = split g
+    newPoint = (fst(randomR rangeX g1), fst(randomR rangeY g2))
 
-initPlayer1 :: Player
-initPlayer1 = Player 
-  { playerID = 2
-  , playerColor = yellow
-  , playerType = Bot Dummy
-  , playerTarget = (100, 100)
-  , playerCenterMass = (100, 100)
-  , playerParts = initPlayerParts1
-  , timeFromSplit = 0.0
-  }
-
+-- | Отрисовка частей молекулы
 drawPlayerPart :: PlayerPart -> Picture
 drawPlayerPart p = uncurry translate (playerPos p) (circleSolid (playerRadius p))
 
+-- | Отрисовка молекулы
 drawPlayer :: Player -> Picture
 drawPlayer p = color (playerColor p) (pictures (map drawPlayerPart (playerParts p)))
 
+-- | Движение молекулы
 movePlayer :: Point -> Player -> Player
 movePlayer m p = p
   { playerTarget = newTarget
   , playerParts = map (\x -> x {playerDirection = argV (newTarget - (playerPos x))}) (playerParts p)  
   }
   where
-    newTarget = checkBoards m
+    newTarget = checkBorders m
 
+-- | Разделение частей молекулы
 splitPlayerPart :: PlayerPart -> [PlayerPart]
-splitPlayerPart p = [ p{ playerMass = newMass, playerRadius = newRadius, playerSpeed = newSpeed}
-                    , p{ playerMass = newMass, playerRadius = newRadius, timeForSpeed = 1, playerSpeed = newSpeed}]
+splitPlayerPart p = [ p{ partNum = newPartNum, playerMass = newMass, playerRadius = newRadius, playerSpeed = newSpeed}
+                    , p{ partNum = newPartNum + 1, playerMass = newMass, playerRadius = newRadius, timeForSpeed = 1, playerSpeed = newSpeed}]
     where
       newMass = (playerMass p) / 2
       newRadius = radiusfromMass newMass
       newSpeed = speedFromMass newMass
+      newPartNum = (partNum p) * 2
 
+-- | Разделение молекулы
 splitPlayer :: Player -> Player
 splitPlayer p = p 
   { playerParts = foldl (\x y -> (x ++ splitPlayerPart y)) [] (playerParts p)
   , timeFromSplit = 10
   } 
 
+-- | Обновление частей молекулы
 updatePlayerParts :: Float -> Point -> PlayerPart -> PlayerPart
 updatePlayerParts dt m p  = p { playerPos = (playerPos p) + motion, timeForSpeed = max 0 $ (timeForSpeed p) - dt}
   where
@@ -80,6 +74,7 @@ updatePlayerParts dt m p  = p { playerPos = (playerPos p) + motion, timeForSpeed
       | magV (playerPos p - m) < (playerSpeed p) = (0, 0)
       | otherwise = (mulSV (60 * dt * (playerSpeedSum)) (cos $ playerDirection p, sin $ playerDirection p))
 
+-- | Обновление молекулы
 updatePlayer :: Float -> Player -> Player
 updatePlayer dt p = p { playerParts = map (updatePlayerParts dt (playerTarget p)) (playerParts p)
                       , playerCenterMass = centerMass (playerParts p)

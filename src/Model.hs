@@ -1,7 +1,7 @@
 module Model where
 import Graphics.Gloss.Interface.Pure.Game
 
-data PlayerType = Handle | Bot BotType
+data PlayerType = Handle | Bot BotType deriving(Eq)
 
 data Eat = Eat
   { eatPos      :: Point
@@ -21,7 +21,8 @@ data Player = Player
   }
 
 data PlayerPart = PlayerPart
-  { playerMass      :: Float 
+  { partNum         :: Int
+  , playerMass      :: Float 
   , playerRadius    :: Float
   , playerSpeed     :: Float
   , playerPos       :: Point
@@ -36,4 +37,4 @@ data World = World
   , nextEat   :: [Eat]
   }
 
-data BotType = Dummy | Easy
+data BotType = Dummy | Easy deriving(Eq)

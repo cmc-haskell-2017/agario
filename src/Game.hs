@@ -1,7 +1,6 @@
 module Game where
 
 import Graphics.Gloss.Interface.IO.Game
-import Graphics.Gloss.Data.Vector
 import Control.Concurrent.STM
 import System.Random
 import System.Exit
@@ -11,6 +10,7 @@ import AI
 import Physics
 import Player
 
+-- | Основная функция
 run :: IO ()
 run = do
   g <- newStdGen
@@ -35,7 +35,6 @@ run = do
       atomically $ modifyTVar s (updateWorld dt)
       return s
 
-
 emptyWorld :: StdGen -> World
 emptyWorld g = World 
   { playID = 0
@@ -52,43 +51,55 @@ initOneEat p = Eat
   , eatRadius = radiusfromMass 75.0
   } 
 
+-- | Инициализация еды
 initEat :: StdGen -> [Eat]
 initEat g = map initOneEat (randomPoints g)
 
+-- | Инициализация мира
 initWorld :: StdGen -> World
 initWorld g = (emptyWorld g)
   { playID = 1
-  , players = initPlayer : initPlayer1 : []
+  , players = initPlayer 1 Handle g1 : initPlayer 2 (Bot Easy) g2 : []
   }
+  where
+    (g1, g2) = split g
 
+-- | Отрисовка еды
 drawEat :: Eat -> Picture
 drawEat p = color (eatColor p) (uncurry translate (eatPos p) (circleSolid (eatRadius p)))
 
+-- | Отрисовка мира
 drawWorld :: World -> Picture
 drawWorld w = pictures
   [ pictures (map drawPlayer (players w))
   , pictures (map drawEat (eat w))
   ]
 
+-- | Движение молекул
 movePlayers :: Int -> Point -> World -> World
 movePlayers i m w = w 
   { players = map (\x -> if ((playerID x) == i) then (movePlayer m x) else x) (players w)}
 
+-- | Обработка деления молекул
 splitPlayers :: Int -> World -> World
 splitPlayers i w = w
   {players = map (\x -> if ((playerID x) == i) then (splitPlayer x) else x) (players w)}
 
+-- | Обработка событий игрока
 handleWorld :: Event -> World -> World
 handleWorld (EventMotion mouse) w = movePlayers (playID w) mouse w
 handleWorld (EventKey (SpecialKey KeySpace) Down _ _) w = splitPlayers (playID w) w 
 handleWorld _ w = w
-  
+ 
+-- | Обновление молекулы  
 updatePlayers :: Float -> [Player] -> [Player]
 updatePlayers dt = map (updatePlayer dt)
 
+-- | Проверка поглощения молекулами друг друга
 checkPlayers :: World -> World
 checkPlayers w = w {players = map (checkPlayer (players w)) (players w)}
 
+-- | Обновление мира
 updateWorld :: Float -> World -> World
 updateWorld dt w = handleBots (checkPlayers (wasEaten (w 
   { eat = newEat
@@ -98,5 +109,5 @@ updateWorld dt w = handleBots (checkPlayers (wasEaten (w
   where
     newEat
       | length (eat w) < eatCount
-        = take (eatCount - length (eat w)) (nextEat w) ++ (eat w)
+        =  (eat w) ++ take (eatCount - length (eat w)) (nextEat w)
       | otherwise = (eat w)
