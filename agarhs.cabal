@@ -1,0 +1,46 @@
+name:                agarhs
+version:             0.1
+-- synopsis:
+-- description:
+-- homepage:
+-- license:
+-- license-file:
+author:              Aleksandr Sinyukov
+maintainer:          a_sinyukov@cs.yaconnect.com
+copyright:           2017 Aleksandr Sinyukov
+build-type:          Simple
+extra-source-files:  README.md
+cabal-version:       >=1.10
+
+library
+  hs-source-dirs:      src
+  ghc-options:         -Wall -fno-warn-type-defaults
+  exposed-modules:     Game
+                       Config
+                       Model
+                       AI
+                       Physics
+                       Player
+  build-depends:       base >= 4.7 && < 5 
+                       , gloss 
+                       , random
+                       , stm
+  default-language:    Haskell2010
+
+executable agarhs
+  hs-source-dirs:      app
+  main-is:             Main.hs
+  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       base
+                     , agarhs
+  default-language:    Haskell2010
+
+test-suite agarhs-test
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Spec.hs
+  build-depends:       base
+                     , agarhs
+  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
+  default-language:    Haskell2010
+
