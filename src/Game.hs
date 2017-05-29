@@ -59,7 +59,7 @@ initEat g = map initOneEat (randomPoints g)
 initWorld :: StdGen -> World
 initWorld g = w
   { playID = 1
-  , players = initPlayer 1 Handle g1 : initPlayer 2 (Bot Easy) g4 : initPlayer 3 (Bot Easy) g3 : initPlayer 2 (Bot Dummy) g2 : []
+  , players = initPlayer 1 Handle g1 : initPlayer 2 (Bot Hungry) g4 : initPlayer 3 (Bot Hungry) g3 : initPlayer 2 (Bot Dummy) g2 : []
   }
   where
     w = (emptyWorld g)

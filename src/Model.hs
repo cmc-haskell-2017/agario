@@ -37,4 +37,4 @@ data World = World
   , nextEat   :: [Eat]
   }
 
-data BotType = Dummy | Easy deriving(Eq)
+data BotType = Dummy | Hungry | Agressive deriving(Eq)
