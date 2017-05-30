@@ -59,7 +59,7 @@ initEat g = map initOneEat (randomPoints g)
 initWorld :: StdGen -> World
 initWorld g = w
   { playID = 1
-  , players = initPlayer 1 Handle g1 : initPlayer 2 (Bot Hungry) g4 : initPlayer 3 (Bot Hungry) g3 : initPlayer 2 (Bot Dummy) g2 : []
+  , players = initPlayer 1 Handle g1 : initPlayer arrowsPlayerId Handle g1 : initPlayer 2 (Bot Hungry) g4 : initPlayer 3 (Bot Hungry) g3 : initPlayer 2 (Bot Dummy) g2 : []
   }
   where
     w = (emptyWorld g)
@@ -82,6 +82,11 @@ movePlayers :: Int -> Point -> World -> World
 movePlayers i m w = w 
   { players = map (\x -> if ((playerID x) == i) then (movePlayer m x) else x) (players w)}
 
+-- | Движение молекул
+movePlayersArrow :: Int -> Point -> World -> World
+movePlayersArrow i p w = w 
+  { players = map (\x -> if ((playerID x) == i) then (movePlayerArrow x p) else x) (players w)}
+
 -- | Обработка деления молекул
 splitPlayers :: Int -> World -> World
 splitPlayers i w = w
@@ -90,7 +95,12 @@ splitPlayers i w = w
 -- | Обработка событий игрока
 handleWorld :: Event -> World -> World
 handleWorld (EventMotion mouse) w = movePlayers (playID w) mouse w
-handleWorld (EventKey (SpecialKey KeySpace) Down _ _) w = splitPlayers (playID w) w 
+handleWorld (EventKey (SpecialKey KeyUp) Down _ _) w = movePlayersArrow arrowsPlayerId (0, flashSpeed) w 
+handleWorld (EventKey (SpecialKey KeyDown) Down _ _) w = movePlayersArrow arrowsPlayerId (0, -flashSpeed) w 
+handleWorld (EventKey (SpecialKey KeyLeft) Down _ _) w = movePlayersArrow arrowsPlayerId (-flashSpeed, 0) w 
+handleWorld (EventKey (SpecialKey KeyRight) Down _ _) w = movePlayersArrow arrowsPlayerId (flashSpeed, 0) w 
+handleWorld (EventKey (MouseButton LeftButton) Down _ _) w = splitPlayers (playID w) w 
+handleWorld (EventKey (SpecialKey KeySpace) Down _ _) w = splitPlayers arrowsPlayerId w 
 handleWorld _ w = w
  
 -- | Обновление молекулы  

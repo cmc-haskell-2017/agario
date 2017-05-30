@@ -20,7 +20,7 @@ initPlayerParts p = [PlayerPart { partNum = 1
 initPlayer :: Int -> PlayerType -> StdGen -> Player
 initPlayer i pt g = Player 
   { playerID = i
-  , playerColor = if pt == Handle then green else yellow
+  , playerColor = if pt == Handle then if i == arrowsPlayerId then blue else green else yellow
   , playerType = pt
   , playerTarget = newPoint
   , playerCenterMass = newPoint
@@ -47,6 +47,15 @@ movePlayer m p = p
   }
   where
     newTarget = checkBorders m
+
+-- | Движение молекулы вверх
+movePlayerArrow :: Player -> Point -> Player
+movePlayerArrow p direction = p
+  { playerTarget = newTarget
+  , playerParts = map (\x -> x {playerDirection = argV (newTarget - (playerPos x))}) (playerParts p)  
+  }
+  where
+    newTarget = checkBorders (fst(playerCenterMass p) + fst(direction), snd(playerCenterMass p) + snd(direction))
 
 -- | Разделение частей молекулы
 splitPlayerPart :: PlayerPart -> [PlayerPart]

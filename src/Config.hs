@@ -11,6 +11,14 @@ startEatMass = 75
 startSpeed :: Float
 startSpeed = 5
 
+-- | Скороть флеша
+flashSpeed :: Float
+flashSpeed = 10000
+
+-- | ID клавишника
+arrowsPlayerId :: Int
+arrowsPlayerId = 179
+
 -- | Ширина экрана
 screenWidth :: Int
 screenWidth = 1366
