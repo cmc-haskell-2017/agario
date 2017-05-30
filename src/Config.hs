@@ -13,7 +13,7 @@ startSpeed = 5
 
 -- | Скороть флеша
 flashSpeed :: Float
-flashSpeed = 10000
+flashSpeed = 1000000
 
 -- | ID клавишника
 arrowsPlayerId :: Int

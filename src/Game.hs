@@ -59,12 +59,13 @@ initEat g = map initOneEat (randomPoints g)
 initWorld :: StdGen -> World
 initWorld g = w
   { playID = 1
-  , players = initPlayer 1 Handle g1 : initPlayer arrowsPlayerId Handle g1 : initPlayer 2 (Bot Hungry) g4 : initPlayer 3 (Bot Hungry) g3 : initPlayer 2 (Bot Dummy) g2 : []
+  , players = initPlayer 1 Handle g1 : initPlayer arrowsPlayerId Handle g5 : initPlayer 2 (Bot Hungry) g4 : initPlayer 3 (Bot Hungry) g3 : initPlayer 2 (Bot Dummy) g2 : []
   }
   where
     w = (emptyWorld g)
     (g1, g2) = split g
     (g3, g4) = split g2
+    (g5, _) = split g3
 
 -- | Отрисовка еды
 drawEat :: Eat -> Picture
